@@ -1,0 +1,686 @@
+<!DOCTYPE html>
+<html class="writer-html5" lang="en" >
+<head>
+  <meta charset="utf-8" /><meta name="generator" content="Docutils 0.17.1: http://docutils.sourceforge.net/" />
+
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Principal Component Anlysis &mdash; first_attempt 1 documentation</title>
+      <link rel="stylesheet" href="_static/pygments.css" type="text/css" />
+      <link rel="stylesheet" href="_static/css/theme.css" type="text/css" />
+      <link rel="stylesheet" href="_static/custom.css" type="text/css" />
+  <!--[if lt IE 9]>
+    <script src="_static/js/html5shiv.min.js"></script>
+  <![endif]-->
+  
+        <script data-url_root="./" id="documentation_options" src="_static/documentation_options.js"></script>
+        <script src="_static/jquery.js"></script>
+        <script src="_static/underscore.js"></script>
+        <script src="_static/doctools.js"></script>
+        <script crossorigin="anonymous" integrity="sha256-Ae2Vz/4ePdIu6ZyI/5ZGsYnb+m0JlOmKPjt6XZ9JJkA=" src="https://cdnjs.cloudflare.com/ajax/libs/require.js/2.3.4/require.min.js"></script>
+        <script async="async" src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-mml-chtml.js"></script>
+        <script>window.MathJax = {"tex": {"inlineMath": [["$", "$"], ["\\(", "\\)"]], "processEscapes": true}, "options": {"ignoreHtmlClass": "tex2jax_ignore|mathjax_ignore|document", "processHtmlClass": "tex2jax_process|mathjax_process|math|output_area"}}</script>
+    <script src="_static/js/theme.js"></script>
+    <link rel="index" title="Index" href="genindex.html" />
+    <link rel="search" title="Search" href="search.html" /> 
+</head>
+
+<body class="wy-body-for-nav"> 
+  <div class="wy-grid-for-nav">
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side">
+      <div class="wy-side-scroll">
+        <div class="wy-side-nav-search" >
+            <a href="index.html" class="icon icon-home"> first_attempt
+          </a>
+<div role="search">
+  <form id="rtd-search-form" class="wy-form" action="search.html" method="get">
+    <input type="text" name="q" placeholder="Search docs" />
+    <input type="hidden" name="check_keywords" value="yes" />
+    <input type="hidden" name="area" value="default" />
+  </form>
+</div>
+        </div><div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="Navigation menu">
+              <!-- Local TOC -->
+              <div class="local-toc"><ul>
+<li><a class="reference internal" href="#">Principal Component Anlysis</a><ul>
+<li><a class="reference internal" href="#Introduction">Introduction</a><ul>
+<li><a class="reference internal" href="#Case-1">Case 1</a></li>
+<li><a class="reference internal" href="#Case-2">Case 2</a></li>
+</ul>
+</li>
+<li><a class="reference internal" href="#Doing-the-Mathematics">Doing the Mathematics</a><ul>
+<li><a class="reference internal" href="#Getting-the-First-Axis:">Getting the First Axis:</a></li>
+<li><a class="reference internal" href="#Getting-the-Second-Axis">Getting the Second Axis</a></li>
+</ul>
+</li>
+<li><a class="reference internal" href="#How-to-Calculate-Principal-Components-for-Data">How to Calculate Principal Components for Data</a><ul>
+<li><a class="reference internal" href="#Calculating-Principal-Components-manually-and-with-Scikit-Learn-on-a-dataset.">Calculating Principal Components manually and with Scikit-Learn on a dataset.</a></li>
+</ul>
+</li>
+</ul>
+</li>
+</ul>
+</div>
+        </div>
+      </div>
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap"><nav class="wy-nav-top" aria-label="Mobile navigation menu" >
+          <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+          <a href="index.html">first_attempt</a>
+      </nav>
+
+      <div class="wy-nav-content">
+        <div class="rst-content">
+          <div role="navigation" aria-label="Page navigation">
+  <ul class="wy-breadcrumbs">
+      <li><a href="index.html" class="icon icon-home"></a> &raquo;</li>
+      <li>Principal Component Anlysis</li>
+      <li class="wy-breadcrumbs-aside">
+            <a href="_sources/2021-10-17-PCA.ipynb.txt" rel="nofollow"> View page source</a>
+      </li>
+  </ul>
+  <hr/>
+</div>
+          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+           <div itemprop="articleBody">
+             
+  
+<style>
+/* CSS for nbsphinx extension */
+
+/* remove conflicting styling from Sphinx themes */
+div.nbinput.container div.prompt *,
+div.nboutput.container div.prompt *,
+div.nbinput.container div.input_area pre,
+div.nboutput.container div.output_area pre,
+div.nbinput.container div.input_area .highlight,
+div.nboutput.container div.output_area .highlight {
+    border: none;
+    padding: 0;
+    margin: 0;
+    box-shadow: none;
+}
+
+div.nbinput.container > div[class*=highlight],
+div.nboutput.container > div[class*=highlight] {
+    margin: 0;
+}
+
+div.nbinput.container div.prompt *,
+div.nboutput.container div.prompt * {
+    background: none;
+}
+
+div.nboutput.container div.output_area .highlight,
+div.nboutput.container div.output_area pre {
+    background: unset;
+}
+
+div.nboutput.container div.output_area div.highlight {
+    color: unset;  /* override Pygments text color */
+}
+
+/* avoid gaps between output lines */
+div.nboutput.container div[class*=highlight] pre {
+    line-height: normal;
+}
+
+/* input/output containers */
+div.nbinput.container,
+div.nboutput.container {
+    display: -webkit-flex;
+    display: flex;
+    align-items: flex-start;
+    margin: 0;
+    width: 100%;
+}
+@media (max-width: 540px) {
+    div.nbinput.container,
+    div.nboutput.container {
+        flex-direction: column;
+    }
+}
+
+/* input container */
+div.nbinput.container {
+    padding-top: 5px;
+}
+
+/* last container */
+div.nblast.container {
+    padding-bottom: 5px;
+}
+
+/* input prompt */
+div.nbinput.container div.prompt pre {
+    color: #307FC1;
+}
+
+/* output prompt */
+div.nboutput.container div.prompt pre {
+    color: #BF5B3D;
+}
+
+/* all prompts */
+div.nbinput.container div.prompt,
+div.nboutput.container div.prompt {
+    width: 4.5ex;
+    padding-top: 5px;
+    position: relative;
+    user-select: none;
+}
+
+div.nbinput.container div.prompt > div,
+div.nboutput.container div.prompt > div {
+    position: absolute;
+    right: 0;
+    margin-right: 0.3ex;
+}
+
+@media (max-width: 540px) {
+    div.nbinput.container div.prompt,
+    div.nboutput.container div.prompt {
+        width: unset;
+        text-align: left;
+        padding: 0.4em;
+    }
+    div.nboutput.container div.prompt.empty {
+        padding: 0;
+    }
+
+    div.nbinput.container div.prompt > div,
+    div.nboutput.container div.prompt > div {
+        position: unset;
+    }
+}
+
+/* disable scrollbars on prompts */
+div.nbinput.container div.prompt pre,
+div.nboutput.container div.prompt pre {
+    overflow: hidden;
+}
+
+/* input/output area */
+div.nbinput.container div.input_area,
+div.nboutput.container div.output_area {
+    -webkit-flex: 1;
+    flex: 1;
+    overflow: auto;
+}
+@media (max-width: 540px) {
+    div.nbinput.container div.input_area,
+    div.nboutput.container div.output_area {
+        width: 100%;
+    }
+}
+
+/* input area */
+div.nbinput.container div.input_area {
+    border: 1px solid #e0e0e0;
+    border-radius: 2px;
+    /*background: #f5f5f5;*/
+}
+
+/* override MathJax center alignment in output cells */
+div.nboutput.container div[class*=MathJax] {
+    text-align: left !important;
+}
+
+/* override sphinx.ext.imgmath center alignment in output cells */
+div.nboutput.container div.math p {
+    text-align: left;
+}
+
+/* standard error */
+div.nboutput.container div.output_area.stderr {
+    background: #fdd;
+}
+
+/* ANSI colors */
+.ansi-black-fg { color: #3E424D; }
+.ansi-black-bg { background-color: #3E424D; }
+.ansi-black-intense-fg { color: #282C36; }
+.ansi-black-intense-bg { background-color: #282C36; }
+.ansi-red-fg { color: #E75C58; }
+.ansi-red-bg { background-color: #E75C58; }
+.ansi-red-intense-fg { color: #B22B31; }
+.ansi-red-intense-bg { background-color: #B22B31; }
+.ansi-green-fg { color: #00A250; }
+.ansi-green-bg { background-color: #00A250; }
+.ansi-green-intense-fg { color: #007427; }
+.ansi-green-intense-bg { background-color: #007427; }
+.ansi-yellow-fg { color: #DDB62B; }
+.ansi-yellow-bg { background-color: #DDB62B; }
+.ansi-yellow-intense-fg { color: #B27D12; }
+.ansi-yellow-intense-bg { background-color: #B27D12; }
+.ansi-blue-fg { color: #208FFB; }
+.ansi-blue-bg { background-color: #208FFB; }
+.ansi-blue-intense-fg { color: #0065CA; }
+.ansi-blue-intense-bg { background-color: #0065CA; }
+.ansi-magenta-fg { color: #D160C4; }
+.ansi-magenta-bg { background-color: #D160C4; }
+.ansi-magenta-intense-fg { color: #A03196; }
+.ansi-magenta-intense-bg { background-color: #A03196; }
+.ansi-cyan-fg { color: #60C6C8; }
+.ansi-cyan-bg { background-color: #60C6C8; }
+.ansi-cyan-intense-fg { color: #258F8F; }
+.ansi-cyan-intense-bg { background-color: #258F8F; }
+.ansi-white-fg { color: #C5C1B4; }
+.ansi-white-bg { background-color: #C5C1B4; }
+.ansi-white-intense-fg { color: #A1A6B2; }
+.ansi-white-intense-bg { background-color: #A1A6B2; }
+
+.ansi-default-inverse-fg { color: #FFFFFF; }
+.ansi-default-inverse-bg { background-color: #000000; }
+
+.ansi-bold { font-weight: bold; }
+.ansi-underline { text-decoration: underline; }
+
+
+div.nbinput.container div.input_area div[class*=highlight] > pre,
+div.nboutput.container div.output_area div[class*=highlight] > pre,
+div.nboutput.container div.output_area div[class*=highlight].math,
+div.nboutput.container div.output_area.rendered_html,
+div.nboutput.container div.output_area > div.output_javascript,
+div.nboutput.container div.output_area:not(.rendered_html) > img{
+    padding: 5px;
+    margin: 0;
+}
+
+/* fix copybtn overflow problem in chromium (needed for 'sphinx_copybutton') */
+div.nbinput.container div.input_area > div[class^='highlight'],
+div.nboutput.container div.output_area > div[class^='highlight']{
+    overflow-y: hidden;
+}
+
+/* hide copybtn icon on prompts (needed for 'sphinx_copybutton') */
+.prompt a.copybtn {
+    display: none;
+}
+
+/* Some additional styling taken form the Jupyter notebook CSS */
+div.rendered_html table {
+  border: none;
+  border-collapse: collapse;
+  border-spacing: 0;
+  color: black;
+  font-size: 12px;
+  table-layout: fixed;
+}
+div.rendered_html thead {
+  border-bottom: 1px solid black;
+  vertical-align: bottom;
+}
+div.rendered_html tr,
+div.rendered_html th,
+div.rendered_html td {
+  text-align: right;
+  vertical-align: middle;
+  padding: 0.5em 0.5em;
+  line-height: normal;
+  white-space: normal;
+  max-width: none;
+  border: none;
+}
+div.rendered_html th {
+  font-weight: bold;
+}
+div.rendered_html tbody tr:nth-child(odd) {
+  background: #f5f5f5;
+}
+div.rendered_html tbody tr:hover {
+  background: rgba(66, 165, 245, 0.2);
+}
+
+/* CSS overrides for sphinx_rtd_theme */
+
+/* 24px margin */
+.nbinput.nblast.container,
+.nboutput.nblast.container {
+    margin-bottom: 19px;  /* padding has already 5px */
+}
+
+/* ... except between code cells! */
+.nblast.container + .nbinput.container {
+    margin-top: -19px;
+}
+
+.admonition > p:before {
+    margin-right: 4px;  /* make room for the exclamation icon */
+}
+
+/* Fix math alignment, see https://github.com/rtfd/sphinx_rtd_theme/pull/686 */
+.math {
+    text-align: unset;
+}
+</style>
+<section id="Principal-Component-Anlysis">
+<h1>Principal Component Anlysis<a class="headerlink" href="#Principal-Component-Anlysis" title="Permalink to this headline"></a></h1>
+<blockquote>
+<div><p>Get overall idea of PCA, learn how the mathematics behind it works applying the concepts of rotation of axes, eigen value and eigen vectors. Finally code everything from scratch and satisfy yourself seeing our output matches with scikit-learn!</p>
+</div></blockquote>
+<ul class="simple">
+<li><p>toc:true</p></li>
+<li><p>badges:true</p></li>
+<li><p>comments:true</p></li>
+<li><p>categories:[Dimension Reduction, PCA]</p></li>
+<li><p>image: images/PCA.png</p></li>
+</ul>
+<section id="Introduction">
+<h2>Introduction<a class="headerlink" href="#Introduction" title="Permalink to this headline"></a></h2>
+<p>Suppose our <span class="math notranslate nohighlight">\(n\)</span> feature vectors <span class="math notranslate nohighlight">\(\vec{x}_1, \ \vec{x}_2, \ \vec{x}_3, \ ...,\ \vec{x}_n\)</span> are 2 dimensional. As, we always prefer to create model with fewer number of variables whenever possible, we want to drop one among the two regressors. Now consider, two cases,</p>
+<section id="Case-1">
+<h3>Case 1<a class="headerlink" href="#Case-1" title="Permalink to this headline"></a></h3>
+<p><img alt="image0" src="https://raw.githubusercontent.com/kkhatua98/All/main/Original.png" /> We see that, variance in x_2 is much less than x_1; ie. x_2 remain more or less same even if the dependent variable <span class="math notranslate nohighlight">\(y\)</span> changes. In simple terms <span class="math notranslate nohighlight">\(y\)</span> does not dependent on x_2 as it depends on x_1. Here we can even say that, it does not depend at all (with little risk). So, we can safely drop it.</p>
+</section>
+<section id="Case-2">
+<h3>Case 2<a class="headerlink" href="#Case-2" title="Permalink to this headline"></a></h3>
+<p>Now suppose now scatter plot x_1 vs x_2 looks like this, <img alt="image1" src="https://raw.githubusercontent.com/kkhatua98/All/main/Rotated.png" /> Here we cannot say that variance of one variable is much less than the other, there is enough variance in both of the axis. But suppose we are desparate to drop one of the variable. If we consider the red arrow direction in the picture, we see that in this direction variation is much less than the blue arrow direction. This observation is the key to the Principal Component Analysis. If we rotate our axis so that our x_1 axis meets
+blue arrow and the x_2 axis meets the red arrow, then in the resulting rotated axis we can drop the rotated x_2 axis. Also we can rotate so that we drop the x_1 axis. But we take the approach to drop the later variable (x_2). If we generalise the above concept for multivariate set up, we get,</p>
+<p><strong>Rotate the original axes so that variance of the first rotated axis &gt; variance of the next rotated axis &gt; … and so on.</strong></p>
+</section>
+</section>
+<section id="Doing-the-Mathematics">
+<h2>Doing the Mathematics<a class="headerlink" href="#Doing-the-Mathematics" title="Permalink to this headline"></a></h2>
+<p>Suppose <span class="math notranslate nohighlight">\(\vec{x}\)</span> is our p dimensional feature vector. We want to rotate our original axes, ie. we want a orthogonal matrix <span class="math notranslate nohighlight">\(Q\)</span> (ie. <span class="math notranslate nohighlight">\(Q^TQ = I\)</span>) such that,</p>
+<div class="math notranslate nohighlight">
+\[\begin{split}Q.\vec{x} = \begin{pmatrix} \vec{Q_1} \\ \vec{Q_2} \\ \vec{Q_3} \\ . \\ . \\ . \\ \vec{Q_p} \end{pmatrix}.\vec{x} = \begin{pmatrix} \vec{Q_1}.\vec{x} \\ \vec{Q_2}.\vec{x} \\ \vec{Q_3}.\vec{x} \\ . \\ . \\ . \\ \vec{Q_p}.\vec{x} \end{pmatrix} = \begin{pmatrix} P_1\\ P_2 \\ P_3 \\ . \\ . \\ . \\ P_n \end{pmatrix} = \vec{P}\end{split}\]</div>
+<div class="math notranslate nohighlight">
+\[\text{Here $Q_i$s are row vectors and $P_i$s are scalar}\]</div>
+<p>Now we have to determine a <span class="math notranslate nohighlight">\(Q\)</span> so that in <span class="math notranslate nohighlight">\(P\)</span>, <span class="math notranslate nohighlight">\(var(P_1) &gt; var(P_2) &gt; var(P_3) &gt; ... &gt; var(P_p)\)</span></p>
+<p><strong>Note:</strong> Here sum of variances of <span class="math notranslate nohighlight">\(P_i\)</span>s and sum of variances of the original <span class="math notranslate nohighlight">\(x_i\)</span> are same. As,</p>
+<div class="math notranslate nohighlight">
+\[\sum_{i=1}^{p} var(P_i) = Trace(var(Q.\vec{x})) = Trace(Q\Sigma Q^T) = Trace(Q^TQ\Sigma) = Trace(\Sigma) = \sum_{i=1}^p var(x_i)\]</div>
+<p><span class="math notranslate nohighlight">\(\Sigma\)</span> is the variance covariance matrix of <span class="math notranslate nohighlight">\(\vec{x}\)</span>.</p>
+<section id="Getting-the-First-Axis:">
+<h3>Getting the First Axis:<a class="headerlink" href="#Getting-the-First-Axis:" title="Permalink to this headline"></a></h3>
+<div class="math notranslate nohighlight">
+\[\begin{split}\begin{aligned}
+ var(P_1)
+ &amp;= var(\vec{Q_1}.\vec{x}) \\
+ &amp;= Q_1.var(\vec{x}).Q_1^T \\
+ &amp;\left.\begin{aligned}
+ &amp;= Q_1.\Sigma Q_1^T \\
+ &amp;= Q_1ED_{\lambda}E^TQ_1^T
+ \end{aligned}\right\} \text{by Eigendecomposition of $\Sigma$. (1)} \\
+ &amp;= AD_{\lambda}A^T (2) \\
+ &amp;= \sum_{i=1}^p \lambda_iA_i^2 \\
+ &amp;\le \lambda_{hi}\sum_{i=1}^{p}A_i^2 \\
+ &amp;= \lambda_{hi}.1 \\
+ &amp;= \lambda_{hi}
+\end{aligned}\end{split}\]</div>
+<div class="line-block">
+<div class="line">Here, <span class="math notranslate nohighlight">\(A = Q_1.E\)</span> (note, this is a column vector)</div>
+<div class="line"><span class="math notranslate nohighlight">\(D_{\lambda} =\)</span> Diagonal matrix of eigen values <span class="math notranslate nohighlight">\(= diag(\lambda_1, \lambda_2, \lambda_3, ... , \lambda_p)\)</span></div>
+<div class="line"><span class="math notranslate nohighlight">\(E =\)</span> Orthogonal matrix of eigen vectors <span class="math notranslate nohighlight">\(= (E_1, E_2, E_3, ..., E_p)\)</span>, where <span class="math notranslate nohighlight">\(E_i\)</span> is the eigen vector corresponding to <span class="math notranslate nohighlight">\(\lambda_i\)</span></div>
+<div class="line">and, <span class="math notranslate nohighlight">\(\sum_{i=1}^pA_i^2 = A^T.A = \underbrace{Q_1.E.E^TQ_1^T = Q_1.I.Q_1^T}_{\text{$E$ is orthogonal matrix}} = Q_1.Q_1^T = 1\)</span>,</div>
+<div class="line"><span class="math notranslate nohighlight">\(hi\)</span>, is the index for which <span class="math notranslate nohighlight">\(\lambda\)</span> is maximum.</div>
+</div>
+<p>Now, suppose <span class="math notranslate nohighlight">\(E_{hi}\)</span> is the eigen vector corresponding to <span class="math notranslate nohighlight">\(\lambda_{hi}\)</span>.</p>
+<p>Then,</p>
+<div class="math notranslate nohighlight">
+\[\begin{split}\begin{aligned}
+var(E_{hi}^T.\vec{x})
+ &amp;= E_{hi}^T\Sigma E_{hi} \\
+ &amp;= E_{hi}^TED_{\lambda}E^TE_{hi} \\
+ &amp;= E_{hi}^T(E_1 \ E_2 \ ... \ E_{hi} \ ... \ E_p)D_{\lambda}\begin{pmatrix}E_1^T \\ E_2^T \\ . \\ . \\ E_{hi}^T \\ . \\ . \\ . \\ E_p^T\end{pmatrix}E_{hri}\\
+ &amp;= \vec{e}_{hi}^TD_{\lambda}\vec{e}_{hi} = \lambda_{hi}
+\end{aligned}\end{split}\]</div>
+<p>Here, only jth entry of <span class="math notranslate nohighlight">\(e_j\)</span> is 1, rest are 0.</p>
+<p>So, the first Principal Component <span class="math notranslate nohighlight">\(Q_1=E_{hi}^T\)</span></p>
+</section>
+<section id="Getting-the-Second-Axis">
+<h3>Getting the Second Axis<a class="headerlink" href="#Getting-the-Second-Axis" title="Permalink to this headline"></a></h3>
+<p><span class="math notranslate nohighlight">\(Q\)</span> is orthogonal matrix, so, <span class="math notranslate nohighlight">\(Q_2.Q_1^T=0; \ Q_2.E_{hi}=0\)</span>.</p>
+<div class="line-block">
+<div class="line">Now,</div>
+</div>
+<blockquote>
+<div><div class="math notranslate nohighlight">
+\[\begin{split}\begin{aligned}
+var(P_2) &amp;= var(\vec{Q_2}.\vec{x}) \\
+ &amp;= \vec{Q}_2.\Sigma.\vec{Q}_2^T \\
+ &amp;= \vec{Q}_2ED_{\lambda}E^T.\vec{Q}_2^T \\
+ &amp;= \vec{Q}_2(E_1 \ E_2 \ .. \ E_{hi} \ .. \ E_p)D_{\lambda}\begin{pmatrix}E_1^T \\ E_2^T \\ . \\ . \\ E_{hi}^T \\ . \\ . \\ E_p^T\end{pmatrix}Q_2^T \\
+ &amp;= (\vec{Q}_2.E_1 \ \ \ \vec{Q}_2.E_2 \ \ \ .. \ \ \ \vec{Q}_2E_{hi} \ ... \ \vec{Q}_2E_p)D_{\lambda}\begin{pmatrix}\vec{Q}_2^T.E_1^T \\ \vec{Q}_2^T.E_2^T \\ . \\ . \\ \vec{Q}_2^T.E_{hi}^T \\ . \\ . \\ . \\ \vec{Q}_2^T.E_p^T\end{pmatrix} \\
+ &amp;=(\vec{Q}_2.E_1 \ \ \ \vec{Q}_2.E_2 \ \ \ ... \ \ \ 0 \ ... \ \vec{Q}_2E_p)D_{\lambda}\begin{pmatrix}\vec{Q}_2^T.E_1^T \\ \vec{Q}_2^T.E_2^T \\ . \\ . \\ 0 \\ . \\ . \\ . \\ \vec{Q}_2^T.E_p^T\end{pmatrix} \\
+ &amp;=A_{*} D_{\lambda}A_{*}^T \\
+ &amp;=\sum_{i=1, i \neq hi}^p {\lambda}_i A_{*i}^2 \\
+ &amp;\le \lambda_{hi_2}\sum_{i=1, i \neq hi}^p A_{*i}^2 \\
+ &amp;= \lambda_{hi_2}.1 \\
+ &amp;= \lambda_{hi_2}
+\end{aligned}\end{split}\]</div>
+<p>where, <span class="math notranslate nohighlight">\(\lambda_{hi_2}\)</span> is the second highest eigen value and <span class="math notranslate nohighlight">\(hi_2\)</span> is the index of it</p>
+</div></blockquote>
+<div class="line-block">
+<div class="line"><span class="math notranslate nohighlight">\(\sum_{i=1 \\ i \neq hi}^p A_{*i}^2 = A_*^T.A_* = \underbrace{Q_2.E.E^TQ_2^T = Q_2.I.Q_2^T}_{\text{$E$ is orthogonal matrix}} = Q_2.Q_2^T = 1\)</span></div>
+</div>
+<p>Now, suppose <span class="math notranslate nohighlight">\(E_{hi_2}\)</span> is the eigen vector corresponding to <span class="math notranslate nohighlight">\(\lambda_{hi}\)</span>.</p>
+<p>Then,</p>
+<div class="math notranslate nohighlight">
+\[\begin{split}\begin{aligned}
+var(E_{hi_2}^T.\vec{x})
+ &amp;= E_{hi_2}^T\Sigma E_{hi_2} \\
+ &amp;= E_{hi_2}^TED_{\lambda}E^TE_{hi_2} \\
+ &amp;= E_{hi_2}^T(E_1 \ E_2 \ E_3 \ ... \ E_{hi_2} \ ... \ E_p)D_{\lambda}\begin{pmatrix}E_1^T \\ E_2^T \\ E_3^T \\ . \\ . \\ E_{hi_2}^T \\ . \\ . \\ . \\ E_p^T\end{pmatrix}E_{hi_2} \\
+ &amp;= \vec{e}_{hi_2}^TD_{\lambda}\vec{e}_{hi_2} \\
+ &amp;= \lambda_{hi_2}
+\end{aligned}\end{split}\]</div>
+<p>Here, only jth entry of <span class="math notranslate nohighlight">\(e_j\)</span> is 1, rest are 0.</p>
+<p>So, the first Principal Component <span class="math notranslate nohighlight">\(Q_2=E_{hi_2}^T\)</span></p>
+<p><strong>Note:</strong></p>
+<div class="math notranslate nohighlight">
+\[\begin{split}\begin{aligned}
+cov(P_1, \ P_2)
+ &amp;= cov(\vec{Q}_1.\vec{x}, \vec{Q_2}.\vec{x}) \\
+ &amp;= cov(\vec{E}_{hi}^T.\vec{x}, \vec{E}_{hi_2}^T.\vec{x}) \\
+ &amp;= \vec{E}_{hi}^T.\Sigma \vec{E}_{hi_2} \\
+ &amp;= E_{hi}^T(\vec{E}_1 \ \vec{E}_2 \ \vec{E}_3 \ ... \ \vec{E}_{hi} \ ... \ \vec{E}_p)D_{\lambda}\begin{pmatrix}\vec{E}_1^T \\ \vec{E}_2^T \\ \vec{E}_3^T \\ . \\ . \\ \vec{E}_{hi_2}^T \\ . \\ . \\ . \\ \vec{E}_p^T\end{pmatrix}.\vec{E}_{hi_2} \\
+ &amp;= (0 \ 0 \ 0 \ ... \ 1 \ ... \ 0)D_{\lambda}\begin{pmatrix}0 \\ 0 \\ 0 \\ . \\ . \\ 1 \\ . \\ . \\ . \\ 0\end{pmatrix} \\
+ &amp;=\underbrace{(0 \ 0 \ 0 \ ... \ 1 \ ... \ 0)}_{\text{1 in $hi$ position}}\underbrace{\begin{pmatrix}0 \\ 0 \\ 0 \\ . \\ . \\ \lambda_{hi_2} \\ . \\ . \\ . \\ 0\end{pmatrix}}_{\text{$\lambda_{hi_2}$ in $hi_2$ position}} \\
+ &amp;=0
+\end{aligned}\end{split}\]</div>
+<p>, ie covariance is 0, so correlation is also 0.</p>
+<p>So, one advantage of this rotation is that the resulting axes become <strong>uncorrelated</strong> (not independent). Here we should not get confuse with the concept of orthogonality and uncorrelatedness. Orthogonality is a geometrical concept, where uncorrelatedness is statistical concept. Also, we can rotate the axes in a direction, such that the resulting axes are correlated.</p>
+<p>Like this we can calculate the remaining Principal Components.</p>
+</section>
+</section>
+<section id="How-to-Calculate-Principal-Components-for-Data">
+<h2>How to Calculate Principal Components for Data<a class="headerlink" href="#How-to-Calculate-Principal-Components-for-Data" title="Permalink to this headline"></a></h2>
+<p>Of course when we have data, we do not know the <span class="math notranslate nohighlight">\(\Sigma\)</span> matrix, so we can not calculate the original Principal Components. One obvious choice is that we estimate <span class="math notranslate nohighlight">\(\Sigma\)</span> with sample covariance matrix</p>
+<div class="math notranslate nohighlight">
+\[\hat{\Sigma} = S = \frac{1}{n - 1}\sum_{i=1}^n (\vec{x}_i - \bar{x}).(\vec{x}_i - \bar{x})^T\]</div>
+<p>and calculate the eigenvalue, eigenvectors of <span class="math notranslate nohighlight">\(S\)</span>.</p>
+<section id="Calculating-Principal-Components-manually-and-with-Scikit-Learn-on-a-dataset.">
+<h3>Calculating Principal Components manually and with Scikit-Learn on a dataset.<a class="headerlink" href="#Calculating-Principal-Components-manually-and-with-Scikit-Learn-on-a-dataset." title="Permalink to this headline"></a></h3>
+<p>Loading data</p>
+<div class="nbinput docutils container">
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[1]:
+</pre></div>
+</div>
+<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre>
+<span></span><span class="kn">import</span> <span class="nn">pandas</span>
+
+<span class="c1"># Loading data</span>
+<span class="n">data</span> <span class="o">=</span> <span class="n">pandas</span><span class="o">.</span><span class="n">read_csv</span><span class="p">(</span><span class="s2">&quot;https://raw.githubusercontent.com/kkhatua98/All/main/Transformed_Data.csv&quot;</span><span class="p">)</span>
+<span class="n">data</span><span class="o">.</span><span class="n">head</span><span class="p">()</span>
+</pre></div>
+</div>
+</div>
+<div class="nboutput nblast docutils container">
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[1]:
+</pre></div>
+</div>
+<div class="output_area rendered_html docutils container">
+<div>
+<style scoped>
+    .dataframe tbody tr th:only-of-type {
+        vertical-align: middle;
+    }
+
+    .dataframe tbody tr th {
+        vertical-align: top;
+    }
+
+    .dataframe thead th {
+        text-align: right;
+    }
+</style>
+<table border="1" class="dataframe">
+  <thead>
+    <tr style="text-align: right;">
+      <th></th>
+      <th>x_1</th>
+      <th>x_2</th>
+    </tr>
+  </thead>
+  <tbody>
+    <tr>
+      <th>0</th>
+      <td>-3.995782</td>
+      <td>-5.632142</td>
+    </tr>
+    <tr>
+      <th>1</th>
+      <td>-3.496130</td>
+      <td>-5.124706</td>
+    </tr>
+    <tr>
+      <th>2</th>
+      <td>3.630809</td>
+      <td>8.009889</td>
+    </tr>
+    <tr>
+      <th>3</th>
+      <td>3.755696</td>
+      <td>6.889920</td>
+    </tr>
+    <tr>
+      <th>4</th>
+      <td>-1.945930</td>
+      <td>-3.323225</td>
+    </tr>
+  </tbody>
+</table>
+</div></div>
+</div>
+<p>Visualising Data</p>
+<div class="nbinput docutils container">
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[4]:
+</pre></div>
+</div>
+<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre>
+<span></span><span class="kn">import</span> <span class="nn">matplotlib.pyplot</span> <span class="k">as</span> <span class="nn">plt</span>
+<span class="kn">import</span> <span class="nn">seaborn</span>
+
+
+<span class="n">plot</span> <span class="o">=</span> <span class="n">seaborn</span><span class="o">.</span><span class="n">scatterplot</span><span class="p">(</span><span class="n">x</span> <span class="o">=</span> <span class="n">data</span><span class="p">[</span><span class="s2">&quot;x_1&quot;</span><span class="p">],</span> <span class="n">y</span> <span class="o">=</span> <span class="n">data</span><span class="p">[</span><span class="s2">&quot;x_2&quot;</span><span class="p">])</span>
+<span class="n">plot</span><span class="o">.</span><span class="n">set_title</span><span class="p">(</span><span class="s2">&quot;x_1   VS   x_2&quot;</span><span class="p">,</span> <span class="n">y</span> <span class="o">=</span> <span class="mf">1.02</span><span class="p">)</span>
+<span class="n">plot</span><span class="o">.</span><span class="n">set_xlabel</span><span class="p">(</span><span class="s2">&quot;x_1&quot;</span><span class="p">)</span>
+<span class="n">plot</span><span class="o">.</span><span class="n">set_ylabel</span><span class="p">(</span><span class="s2">&quot;x_2&quot;</span><span class="p">)</span>
+<span class="n">plt</span><span class="o">.</span><span class="n">xlabel</span><span class="p">(</span><span class="s2">&quot;x_1&quot;</span><span class="p">)</span>
+<span class="n">plt</span><span class="o">.</span><span class="n">ylabel</span><span class="p">(</span><span class="s2">&quot;x_2&quot;</span><span class="p">)</span>
+<span class="n">plt</span><span class="o">.</span><span class="n">show</span><span class="p">()</span>
+</pre></div>
+</div>
+</div>
+<div class="nboutput nblast docutils container">
+<div class="prompt empty docutils container">
+</div>
+<div class="output_area docutils container">
+<img alt="_images/2021-10-17-PCA_4_0.png" src="_images/2021-10-17-PCA_4_0.png" />
+</div>
+</div>
+<p>Calculating Q manually</p>
+<div class="nbinput docutils container">
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[ ]:
+</pre></div>
+</div>
+<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre>
+<span></span><span class="kn">import</span> <span class="nn">numpy</span>
+
+<span class="n">covariance_matrix</span> <span class="o">=</span> <span class="n">data</span><span class="o">.</span><span class="n">cov</span><span class="p">()</span>
+
+<span class="c1"># Calculating the eigenvalues and eigenvectors</span>
+<span class="n">eigenvalues</span><span class="p">,</span> <span class="n">eigenvectors</span> <span class="o">=</span> <span class="n">numpy</span><span class="o">.</span><span class="n">linalg</span><span class="o">.</span><span class="n">eig</span><span class="p">(</span><span class="n">covariance_matrix</span><span class="p">)</span>
+
+<span class="c1"># In eigenvalues values are not sorted, but we need in sorted order.</span>
+<span class="n">idx</span> <span class="o">=</span> <span class="n">eigenvalues</span><span class="o">.</span><span class="n">argsort</span><span class="p">()[::</span><span class="o">-</span><span class="mi">1</span><span class="p">]</span>
+<span class="n">eigenvalues</span> <span class="o">=</span> <span class="n">eigenvalues</span><span class="p">[</span><span class="n">idx</span><span class="p">]</span>
+<span class="n">eigenvectors</span> <span class="o">=</span> <span class="n">eigenvectors</span><span class="p">[:,</span><span class="n">idx</span><span class="p">]</span>
+
+<span class="c1"># In eigenvectors eigenvectors are stored columnwise. But in Q eigenvectors are stored rowsise.</span>
+<span class="c1"># So we have to transpose it.</span>
+
+<span class="n">Q_manual</span> <span class="o">=</span> <span class="n">eigenvectors</span><span class="o">.</span><span class="n">T</span>
+
+<span class="nb">print</span><span class="p">(</span><span class="n">Q_manual</span><span class="p">)</span>
+</pre></div>
+</div>
+</div>
+<div class="nboutput nblast docutils container">
+<div class="prompt empty docutils container">
+</div>
+<div class="output_area docutils container">
+<div class="highlight"><pre>
+[[-0.49748739 -0.86747121]
+ [-0.86747121  0.49748739]]
+</pre></div></div>
+</div>
+<p>Calculating Q from Sklearn</p>
+<div class="nbinput docutils container">
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[ ]:
+</pre></div>
+</div>
+<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre>
+<span></span><span class="kn">from</span> <span class="nn">sklearn.decomposition</span> <span class="kn">import</span> <span class="n">PCA</span>
+<span class="n">pca</span> <span class="o">=</span> <span class="n">PCA</span><span class="p">()</span>
+
+<span class="n">pca</span><span class="o">.</span><span class="n">fit</span><span class="p">(</span><span class="n">data</span><span class="p">)</span>
+<span class="nb">print</span><span class="p">(</span><span class="n">pca</span><span class="o">.</span><span class="n">components_</span><span class="p">)</span>
+</pre></div>
+</div>
+</div>
+<div class="nboutput nblast docutils container">
+<div class="prompt empty docutils container">
+</div>
+<div class="output_area docutils container">
+<div class="highlight"><pre>
+[[ 0.49748739  0.86747121]
+ [ 0.86747121 -0.49748739]]
+</pre></div></div>
+</div>
+<p>This two results may seem different at first, but note that, every row of pca.components_ is an eigenvector so, changing its sign does not change anything. So, we see that, the rotation matrix calculated manually and from Sklearn are same.</p>
+</section>
+</section>
+</section>
+
+
+           </div>
+          </div>
+          <footer>
+
+  <hr/>
+
+  <div role="contentinfo">
+    <p>&#169; Copyright 2021, Kaustav.</p>
+  </div>
+
+  Built with <a href="https://www.sphinx-doc.org/">Sphinx</a> using a
+    <a href="https://github.com/readthedocs/sphinx_rtd_theme">theme</a>
+    provided by <a href="https://readthedocs.org">Read the Docs</a>.
+   
+
+</footer>
+        </div>
+      </div>
+    </section>
+  </div>
+  <script>
+      jQuery(function () {
+          SphinxRtdTheme.Navigation.enable(true);
+      });
+  </script> 
+
+</body>
+</html>
